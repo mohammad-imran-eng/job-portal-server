@@ -28,6 +28,7 @@ const run = async()=> {
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
         const jobCollection = client.db("jobPortal").collection("jobs");
+        const jobApplicationcollection = client.db("jobPortal").collection("job_applications");
 
         app.get('/jobs',async(req,res)=> {
           const cursor = await jobCollection.find().toArray();
@@ -39,6 +40,21 @@ const run = async()=> {
           const query = {_id: new ObjectId(id)};
           const cursor = await jobCollection.findOne(query);
           res.send(cursor);
+        })
+
+        // job application apis
+
+        app.get('/job-application',async(req,res)=> {
+          const email = req.query.email;
+          const query = {applicant_email: email}
+          const result = await jobApplicationcollection.find(query).toArray();
+          res.send(result);
+        })
+        
+        app.post('/job-applications',async(req,res)=> {
+          const application = req.body;
+          const result = await jobApplicationcollection.insertOne(application);
+          res.send(result);
         })
       }
 
